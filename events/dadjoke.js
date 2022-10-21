@@ -1,7 +1,19 @@
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
+const { Events } = require("discord.js");
 
-const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages, GatewayIntentBits.MessageContent],
-  partials: [Partials.Message, Partials.Channel, Partials.Reaction],
-  autorun: true,
-});
+module.exports = {
+  name: Events.MessageCreate,
+  once: true,
+  execute(msg) {
+    const triggerWords = ["I'm ", "Im ", "im ", "i'm "];
+    triggerWords.forEach((word) => {
+      if (msg.content.startsWith(word)) {
+        const message = msg.content;
+        const split = message.slice(3).trim();
+        const chance = Math.random();
+        if (chance > 0.1) {
+          msg.reply(`Hi, ${split}. I'm Dad!`);
+        }
+      }
+    });
+  },
+};
