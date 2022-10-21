@@ -32,6 +32,7 @@ for (const file of eventFiles) {
   }
 }
 
+// Should me in /events/dadjoke.js but importing is being a bitch atm
 client.on("messageCreate", (msg) => {
   if (msg.author.bot) return false;
 
