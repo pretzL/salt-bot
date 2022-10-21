@@ -35,7 +35,7 @@ for (const file of eventFiles) {
 client.on("messageCreate", (msg) => {
   if (msg.author.bot) return false;
 
-  const triggerWords = ["I'm", "Im", "im"];
+  const triggerWords = ["I'm", "Im", "im", "i'm"];
 
   triggerWords.forEach((word) => {
     if (msg.content.includes(word)) {
