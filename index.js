@@ -32,18 +32,20 @@ for (const file of eventFiles) {
   }
 }
 
-// Should me in /events/dadjoke.js but importing is being a bitch atm
+// Should be in /events/dadjoke.js but importing is being a bitch atm
 client.on("messageCreate", (msg) => {
   if (msg.author.bot) return false;
 
   const triggerWords = ["I'm", "Im", "im", "i'm"];
 
   triggerWords.forEach((word) => {
-    if (msg.content.includes(word)) {
-      const trimmed = msg.content.split(" ")[1];
+    if (msg.content.startsWith(word)) {
+      const message = msg.content;
+      const split = message.slice(3).trim();
+      console.log(split);
       const chance = Math.random();
       if (chance < 0.1) {
-        msg.reply(`Hi, ${trimmed}. I'm dad!`);
+        msg.reply(`Hi, ${split}. I'm Dad!`);
       }
     }
   });
