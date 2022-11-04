@@ -7,7 +7,6 @@ module.exports = {
     if (msg.author.bot === false) {
       const regEx = /^Who(?:'s joe\??|s joe\??)$/;
       const patternMatches = regEx.test(msg.content);
-      console.log(msg);
       if (patternMatches) {
         msg.reply(`JOE MAMA LMAOOOOO`);
       }
