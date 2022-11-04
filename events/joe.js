@@ -5,10 +5,12 @@ module.exports = {
   once: false,
   execute(msg) {
     const triggerWords = ["joe", "Joe"];
-    triggerWords.forEach((word) => {
-      if (msg.content.includes(word)) {
-        msg.reply(`Who's joe?`);
-      }
-    });
+    if (msg.author.bot === false) {
+      triggerWords.forEach((word) => {
+        if (msg.content.startsWith(word)) {
+          msg.reply(`Who's joe?`);
+        }
+      });
+    }
   },
 };
