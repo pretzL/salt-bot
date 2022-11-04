@@ -2,7 +2,7 @@ const { Events } = require("discord.js");
 
 module.exports = {
   name: Events.MessageCreate,
-  once: true,
+  once: false,
   execute(msg) {
     const triggerWords = ["joe", "Joe"];
     triggerWords.forEach((word) => {
