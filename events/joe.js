@@ -6,7 +6,7 @@ module.exports = {
   execute(msg) {
     const triggerWords = ["joe", "Joe"];
     triggerWords.forEach((word) => {
-      if (msg.content.startsWith(word)) {
+      if (msg.content.includes(word)) {
         msg.reply(`Who's joe?`);
       }
     });

@@ -6,7 +6,8 @@ module.exports = {
   execute(msg) {
     const triggerWords = ["In your face bot"];
     triggerWords.forEach((word) => {
-      if (msg.content.includes(word)) {
+      const message = msg.content.toLowerCase();
+      if (message.includes(word)) {
         msg.reply(`:feelsbadman:`);
       }
     });
