@@ -4,11 +4,11 @@ module.exports = {
   name: Events.MessageCreate,
   once: false,
   execute(msg) {
-    const triggerWords = ["In your face bot"];
+    const triggerWords = ["in your face bot"];
     triggerWords.forEach((word) => {
       const message = msg.content.toLowerCase();
       if (message.includes(word)) {
-        msg.reply(`:feelsbadman:`);
+        msg.reply(`<:feelsbadman:406403628056838145>`);
       }
     });
   },
