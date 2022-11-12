@@ -4,7 +4,7 @@ module.exports = {
   name: Events.MessageCreate,
   once: false,
   execute(msg) {
-    const triggerWords = ["in your face bot"];
+    const triggerWords = ["in your face bot", "stupid bot", "fuck you bot"];
     triggerWords.forEach((word) => {
       const message = msg.content.toLowerCase();
       if (message.includes(word)) {
