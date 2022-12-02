@@ -7,7 +7,7 @@ module.exports = {
     const triggerWords = ["I'm ", "Im ", "im ", "i'm "];
     triggerWords.forEach((word) => {
       if (msg.content.startsWith(word)) {
-        const message = msg.content;
+        const message = msg.content.toLowerCase();
         const split = message.slice(3).trim();
         const chance = Math.random();
         if (chance > 0.1) {
