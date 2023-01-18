@@ -3,6 +3,18 @@ const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits, Partials } = require("discord.js");
 const { token } = require("./config.json");
 
+// Firebase stuff
+
+const functions = require("firebase-functions");
+const express = require("express");
+const server = express();
+server.get("/some-data", (request, response) => {
+  response.send("Hello world");
+});
+exports.app = functions.https.onRequest(server);
+
+// Discord Bot stuff
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages, GatewayIntentBits.MessageContent],
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
