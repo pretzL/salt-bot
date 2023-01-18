@@ -25,6 +25,8 @@
   "dependencies": {
     "dadjokes-wrapper": "^0.1.4",
     "discord.js": "^14.6.0",
+    "firebase": "^9.15.0",
+    "nodemon": "^2.0.20",
     "vite": "^3.1.8"
   },
   "devDependencies": {
