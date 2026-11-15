@@ -4,8 +4,10 @@
   "description": "discord bot testing",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js",
-    "buildabot": "node deploy-commands.js && node index.js",
+    "start": "node index.js",
+    "dev": "node --watch --env-file-if-exists=.env index.js",
+    "deploy-commands": "node --env-file-if-exists=.env deploy-commands.js",
+    "test": "node --test",
     "prepare": "husky",
     "lint:commit": "commitlint --last",
     "lint:commits": "commitlint --from origin/main --to HEAD"
