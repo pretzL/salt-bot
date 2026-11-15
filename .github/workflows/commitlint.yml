@@ -10,6 +10,8 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  # validateSingleCommit reports a commit status, which needs this scope.
+  statuses: write
 
 concurrency:
   group: conventional-commits-${{ github.ref }}
