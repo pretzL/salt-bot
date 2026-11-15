@@ -1,0 +1,80 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+    # "edited" catches PR title changes; "synchronize" re-runs on new commits.
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  # validateSingleCommit reports a commit status, which needs this scope.
+  statuses: write
+
+concurrency:
+  group: conventional-commits-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    name: PR title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      # Keep these types in sync with commitlint.config.js.
+      - uses: amannn/action-semantic-pull-request@v6.1.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" in the title "{title}" must start with a lowercase character.
+          # Catches "Squash and merge" using an invalid single commit message
+          # instead of the (valid) PR title.
+          validateSingleCommit: true
+          wip: true
+
+  commits:
+    name: Commit messages
+    # A push that creates the branch has no "before" commit to diff against.
+    if: github.event_name == 'pull_request' || github.event.created != true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history so the base/head SHAs are resolvable.
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint commit messages
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+        # commitlint already ignores merge and revert commits by default.
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            npx commitlint --from "$PR_BASE" --to "$PR_HEAD" --verbose
+          else
+            npx commitlint --from "$PUSH_BEFORE" --to "$PUSH_AFTER" --verbose
+          fi

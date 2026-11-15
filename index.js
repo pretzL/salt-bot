@@ -1,47 +1,94 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits, Partials } = require("discord.js");
-const { token } = require("./config.json");
+const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
+const { loadConfig } = require("./config");
 
-// Firebase stuff
-
-const functions = require("firebase-functions");
-const express = require("express");
-const server = express();
-server.get("/some-data", (request, response) => {
-  response.send("Hello world");
-});
-exports.app = functions.https.onRequest(server);
-
-// Discord Bot stuff
+let config;
+try {
+  config = loadConfig();
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.DirectMessages, GatewayIntentBits.MessageContent],
-  partials: [Partials.Message, Partials.Channel, Partials.Reaction],
-  autorun: true,
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Message, Partials.Channel],
 });
 
 client.commands = new Collection();
-const commandsPath = path.join(__dirname, "commands");
-const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith(".js"));
 
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
+const commandsPath = path.join(__dirname, "commands");
+for (const file of fs.readdirSync(commandsPath).filter((name) => name.endsWith(".js"))) {
+  const command = require(path.join(commandsPath, file));
+
+  if (!command.data || typeof command.execute !== "function") {
+    throw new Error(`commands/${file} must export a "data" builder and an "execute" function`);
+  }
+
+  if (client.commands.has(command.data.name)) {
+    throw new Error(`commands/${file} reuses the command name "${command.data.name}"`);
+  }
+
   client.commands.set(command.data.name, command);
 }
 
 const eventsPath = path.join(__dirname, "events");
-const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith(".js"));
+for (const file of fs.readdirSync(eventsPath).filter((name) => name.endsWith(".js"))) {
+  const event = require(path.join(eventsPath, file));
 
-for (const file of eventFiles) {
-  const filePath = path.join(eventsPath, file);
-  const event = require(filePath);
+  if (!event.name || typeof event.execute !== "function") {
+    throw new Error(`events/${file} must export a "name" and an "execute" function`);
+  }
+
+  const handler = (...args) => {
+    Promise.resolve()
+      .then(() => event.execute(...args))
+      .catch((error) => console.error(`Error in the ${event.name} handler (events/${file}):`, error));
+  };
+
   if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
+    client.once(event.name, handler);
   } else {
-    client.on(event.name, (...args) => event.execute(...args));
+    client.on(event.name, handler);
   }
 }
 
-client.login(token);
+client.on("error", (error) => {
+  console.error("Discord client error:", error);
+});
+
+client.login(config.token).catch((error) => {
+  console.error("Failed to log in to Discord:", error.message);
+  process.exit(1);
+});
+
+let shuttingDown = false;
+
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Received ${signal}, disconnecting.`);
+
+  try {
+    await client.destroy();
+  } catch (error) {
+    console.error("Error while shutting down:", error);
+  }
+
+  process.exit(0);
+}
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+  process.on(signal, () => shutdown(signal));
+}
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+});

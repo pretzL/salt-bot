@@ -4,12 +4,9 @@ module.exports = {
   name: Events.MessageCreate,
   once: false,
   execute(msg) {
-    const triggerWords = ["fuck yourself"];
-    triggerWords.forEach((word) => {
-      const message = msg.content.toLowerCase();
-      if (message.includes(word)) {
-        msg.reply(`Fuck me yourself, pussy`);
-      }
-    });
+    if (msg.author.bot) return;
+    if (!msg.content.toLowerCase().includes("fuck yourself")) return;
+
+    return msg.reply("Fuck me yourself, pussy");
   },
 };

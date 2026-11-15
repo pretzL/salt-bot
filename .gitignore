@@ -1,5 +1,9 @@
 /node_modules
-/config.json
+
+# Local configuration
 .env
-botkey.env
-firebase.js
+.env.*
+!.env.example
+
+# Legacy config file, replaced by environment variables
+config.json

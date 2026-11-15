@@ -1,19 +1,23 @@
 const { Events } = require("discord.js");
 
+const TRIGGER = /^i'?m\s+(.+)/i;
+const MAX_NAME_LENGTH = 100;
+const REPLY_CHANCE = 0.9;
+
 module.exports = {
   name: Events.MessageCreate,
-  once: true,
+  once: false,
   execute(msg) {
-    const triggerWords = ["I'm ", "Im ", "im ", "i'm "];
-    triggerWords.forEach((word) => {
-      if (msg.content.startsWith(word)) {
-        const message = msg.content.toLowerCase();
-        const split = message.slice(3).trim();
-        const chance = Math.random();
-        if (chance > 0.1) {
-          msg.reply(`Hi, ${split}. I'm Dad!`);
-        }
-      }
-    });
+    if (msg.author.bot) return;
+
+    const match = msg.content.match(TRIGGER);
+    if (!match) return;
+
+    if (Math.random() > REPLY_CHANCE) return;
+
+    const name = match[1].trim().slice(0, MAX_NAME_LENGTH);
+    if (!name) return;
+
+    return msg.reply(`Hi, ${name}. I'm Dad!`);
   },
 };

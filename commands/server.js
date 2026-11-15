@@ -1,8 +1,20 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, InteractionContextType, MessageFlags } = require("discord.js");
 
 module.exports = {
-  data: new SlashCommandBuilder().setName("server").setDescription("Display info about this server."),
+  data: new SlashCommandBuilder()
+    .setName("server")
+    .setDescription("Display info about this server.")
+    .setContexts(InteractionContextType.Guild),
   async execute(interaction) {
-    return interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
+    const { guild } = interaction;
+
+    if (!guild) {
+      return interaction.reply({
+        content: "This command only works in a server.",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    return interaction.reply(`Server name: ${guild.name}\nTotal members: ${guild.memberCount}`);
   },
 };
